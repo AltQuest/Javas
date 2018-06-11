@@ -1,6 +1,6 @@
 //Java Ideas app @BitcoinJake09 6/10/2018
-import java.io.*;
-import java.util.*;
+import java.io.*; //imports for IO
+import java.util.*; //imports for utils like Scanner
 
 class IdeasApp {
 
