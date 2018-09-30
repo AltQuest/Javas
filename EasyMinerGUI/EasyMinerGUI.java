@@ -2,7 +2,6 @@
 This is an opensource GUI to help creating mining start files like .bat
 */
 
-//import com.google.common.base.*;
 import java.io.*;
 import java.io.OutputStream;
 import java.io.IOException;
@@ -11,18 +10,19 @@ import javax.script.*;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.*;
-import javax.swing.*;
+
+
 
 public class EasyMinerGUI extends Applet implements ItemListener, ActionListener {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {}	
 	
 	Button StartButton,SaveButton;
-	TextField UserName,PassWord,Pools;
-	JTextArea ConsoleOut = new JTextArea(50, 10);
+	TextField UserName,PassWord,Pool1,Pool2;
+	TextArea ConsoleOut = new TextArea(50, 10);
 	Choice MinerSelector, isDualMining = new Choice();
-
+	public boolean dualMining = false;
+	public String passPass;
 
 
    public void init() {
@@ -40,8 +40,8 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	SaveButton.setBounds(5,50,50,30);
 
 	MinerSelector = new Choice();
+	MinerSelector.addItem("What Miner?");
 	MinerSelector.addItem("Claymor");
-	MinerSelector.addItem(" - ");
 	MinerSelector.addItem(" - ");
 	MinerSelector.addItem(" - ");
 	MinerSelector.setBounds(5,110,150,30);
@@ -52,8 +52,10 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	isDualMining.addItem("Decred/Siacoin/Lbry/Pascal");
 //Decred/Siacoin/Lbry/Pascal
 
-        Pools = new TextField("Pool",64);
-	Pools.setBounds(55,20,100,30);
+        Pool1 = new TextField("Pool",64);
+	Pool1.setBounds(55,20,100,30);
+	Pool2 = new TextField("Dual Mine Pool",64);
+	Pool2.setBounds(5,170,100,30);
         UserName = new TextField("UserName",64);
 	UserName.setBounds(55,50,100,30);
         PassWord = new TextField("PassWord",64);
@@ -63,17 +65,21 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
         add(SaveButton); 
         add(MinerSelector); 
         add(isDualMining); 
-        add(Pools); 
+        add(Pool1);
+        add(Pool2);
         add(UserName); 
         add(PassWord);
         add(ConsoleOut);
 
-	isDualMining.addItemListener(this); 
+
 	StartButton.addActionListener(this);
 	SaveButton.addActionListener(this);
 	MinerSelector.addItemListener(this);
+	isDualMining.addItemListener(this); 
+	isDualMining.setVisible(false);
+	Pool2.setVisible(false);
 
-
+	ConsoleOut.setText("This is EasyMinerGUI created by @BitcoinJake09\n" + "input your pool, username, and password to get started :D\n" +"currently save will create a .bat and .sh file to also run instead ;)\n" +"ENJOY! STAY CRYPTIC!\n");
 
    }
    public void itemStateChanged (ItemEvent e)
@@ -81,29 +87,44 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	if (e.getSource() == MinerSelector) {
 		System.out.println("MinerSelector Clicked");
 ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");	
+	if (MinerSelector.getSelectedItem().equals("Claymor")) {
+		isDualMining.setVisible(true);
 	}
+	}//Decred/Siacoin/Lbry/Pascal
 	if (e.getSource() == isDualMining) {
-		System.out.println("isDualMining Clicked");
-ConsoleOut.append(isDualMining.getSelectedItem() + " Selected\n");	
+		System.out.println("isDualMining Clicked");	
+	if (isDualMining.getSelectedItem().equals("Decred/Siacoin/Lbry/Pascal")) {
+		ConsoleOut.append("Dual mine: " + isDualMining.getSelectedItem() + " Selected\n");
+		Pool2.setVisible(true);
+		dualMining = true;
+	}
+	if (!isDualMining.getSelectedItem().equals("Decred/Siacoin/Lbry/Pascal")) {
+		ConsoleOut.append("Dual mine: OFF \n");
+		Pool2.setVisible(false);
+	}
 	}
    }
 
-   @Override
+   //@Override
    public void paint (Graphics g) {
      //repaint();
         g.drawString ("BitcoinJake09's EasyMinerGUI", 5, 15);
-	ConsoleOut.setText("This is EasyMinerGUI created by @BitcoinJake09\n" + "input your pool, username, and password to get started :D\n" +"currently save will create a .bat and .sh file to also run instead ;)\n" +"ENJOY! STAY CRYPTIC!\n");
+	
 
    }
    
-   public void actionPerformed(ActionEvent e) {
+   public void actionPerformed(ActionEvent e){
 	if (e.getSource() == StartButton) {
 		System.out.println("StartButton Clicked");
 	}
 	if (e.getSource() == SaveButton) {
 		System.out.println("SaveButton Clicked");
-		if (Pools.getText().equals("Pool")) {
+		if (Pool1.getText().equals("Pool")) {
 			ConsoleOut.append("**need to set a Pool**\n");
+			return;
+		}
+		if ((Pool2.getText().equals("Dual Mine Pool"))&&(dualMining==true)) {
+			ConsoleOut.append("**need to set a Dual Mine Pool**\n");
 			return;
 		}
 		if (UserName.getText().equals("UserName")) {
@@ -112,7 +133,15 @@ ConsoleOut.append(isDualMining.getSelectedItem() + " Selected\n");
 		}
 		if (PassWord.getText().equals("PassWord")) {
 			ConsoleOut.append("**if no password set will default to: x **\n");
+			passPass="x";
 		}
+	try {
+	saveBatFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
+	saveShFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
+	ConsoleOut.append("**SAVED as "+MinerSelector.getSelectedItem()+".bat(windows) & .sh for linux :p**\n");
+	} catch (Exception exc) {}
+
+	}
 //https://bitcointalk.org/index.php?topic=1433925.0
 //EthDcrMiner64.exe -epool eu1.ethermine.org:4444 -ewal <Your_Ethereum_Address>.<RigName> -epsw x
 /*-dpool    Decred/Siacoin/Lbry/Pascal pool address. Use "http://" prefix for HTTP pools, "stratum+tcp://" for Stratum pools. If prefix is missed, Stratum is assumed.
@@ -134,23 +163,25 @@ ConsoleOut.append(isDualMining.getSelectedItem() + " Selected\n");
 -dcoin   select second coin to mine in dual mode. Possible options are "-dcoin dcr", "-dcoin sc", "-dcoin lbc", "-dcoin pasc", "-dcoin blake2s", "-dcoin keccak". Default value is "dcr".
 */
 
-	}
-	File logFile = new File("log.txt");
-	 	System.out.println("has log file"); 
-	//idk what i was doing what this??
-	try {
-        	Scanner	FileScanner = new Scanner(new File("log.txt"));
-    	while (FileScanner.hasNextLine()) {
-            Scanner WordScanner = new Scanner(FileScanner.nextLine());
-        	while (WordScanner.hasNext()) {
-           		String WordFound = WordScanner.next();
-	   		ConsoleOut.append(WordFound);
-        	}
-    	}	 	
-    	} catch(FileNotFoundException ex) {
-		System.out.println("Error printing console output to applet :'(");
-	 	System.out.println(ex); 
-	  }
+
+
+   }
+
+   public static void saveBatFile(String fName, String pools, String uNames, String pWords) throws IOException {
+	File saveFile = new File(fName+".bat");
+		saveFile.createNewFile();
+		FileWriter writer = new FileWriter(saveFile); 
+		writer.write("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords); 
+      		writer.flush();
+      		writer.close();
+   }
+
+   public static void saveShFile(String fName, String pools, String uNames, String pWords) throws IOException {
+	File saveFile = new File(fName+".sh");
+		saveFile.createNewFile();
+		FileWriter writer = new FileWriter(saveFile); 
+		writer.write("./EthDcrMiner64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords); 
+      		writer.flush();
+      		writer.close();
    }
 }
-
