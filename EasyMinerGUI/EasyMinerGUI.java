@@ -1,5 +1,7 @@
 /* EasyMinerGUI.java @BitcoinJake09 9/24/2018
 This is an opensource GUI to help creating mining start files like .bat
+
+if you are compiling and running yourself you may need to change your java.policy to allow it to run to be able to midify files to save things. http://mindprod.com/jgloss/signedapplets.html#PROCESS
 */
 
 import java.io.*;
@@ -41,7 +43,7 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 
 	MinerSelector = new Choice();
 	MinerSelector.addItem("What Miner?");
-	MinerSelector.addItem("Claymor");
+	MinerSelector.addItem("Claymore");
 	MinerSelector.addItem(" - ");
 	MinerSelector.addItem(" - ");
 	MinerSelector.setBounds(5,110,150,30);
@@ -87,7 +89,7 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	if (e.getSource() == MinerSelector) {
 		System.out.println("MinerSelector Clicked");
 ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");	
-	if (MinerSelector.getSelectedItem().equals("Claymor")) {
+	if (MinerSelector.getSelectedItem().equals("Claymore")) {
 		isDualMining.setVisible(true);
 	}
 	}//Decred/Siacoin/Lbry/Pascal
@@ -138,8 +140,8 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 	try {
 	saveBatFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
 	saveShFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
-	ConsoleOut.append("**SAVED as "+MinerSelector.getSelectedItem()+".bat(windows) & .sh for linux :p**\n");
-	} catch (Exception exc) {}
+	ConsoleOut.append("**SAVED as "+MinerSelector.getSelectedItem()+".bat(windows) & "+MinerSelector.getSelectedItem()+".sh(linux) :p**\n");
+	} catch (Exception exc) {ConsoleOut.append("*NO PERMISSION TO SAVE FILES*"); System.out.println("error saving: "+exc);	}
 
 	}
 //https://bitcointalk.org/index.php?topic=1433925.0
@@ -171,7 +173,7 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 	File saveFile = new File(fName+".bat");
 		saveFile.createNewFile();
 		FileWriter writer = new FileWriter(saveFile); 
-		writer.write("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords); 
+		writer.write("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
       		writer.flush();
       		writer.close();
    }
@@ -179,8 +181,15 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
    public static void saveShFile(String fName, String pools, String uNames, String pWords) throws IOException {
 	File saveFile = new File(fName+".sh");
 		saveFile.createNewFile();
-		FileWriter writer = new FileWriter(saveFile); 
-		writer.write("./EthDcrMiner64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords); 
+		FileWriter writer = new FileWriter(saveFile);
+
+		writer.write("#!/bin/bash\n"); 
+		writer.write("export GPU_FORCE_64BIT_PTR 0\n"); 
+		writer.write("export GPU_MAX_HEAP_SIZE 100\n"); 
+		writer.write("export GPU_USE_SYNC_OBJECTS 1\n"); 
+		writer.write("export GPU_MAX_ALLOC_PERCENT 100\n"); 
+		writer.write("export GPU_SINGLE_ALLOC_PERCENT 100\n"); 
+		writer.write("./ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
       		writer.flush();
       		writer.close();
    }
