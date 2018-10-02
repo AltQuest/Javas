@@ -5,10 +5,7 @@ if you are compiling and running yourself you may need to change your java.polic
 */
 
 import java.io.*;
-import java.io.OutputStream;
-import java.io.IOException;
 import java.util.*;
-import javax.script.*;
 import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -26,6 +23,10 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	public boolean dualMining = false;
 	public String passPass;
 
+/*FileDialog dialog = new FileDialog(new Frame(), "Select Directory", FileDialog.LOAD);
+        dialog.show();
+        String directory = dialog.getDirectory(); 
+        System.out.println(directory);*/
 
    public void init() {
 	this.setLayout(null);
@@ -36,33 +37,33 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
     	int appletWidth = appletSize.width;
 
         StartButton = new Button("Start");
-	StartButton.setBounds(5,20,50,30);
+	StartButton.setBounds(5,35,50,30);
 
         SaveButton = new Button("Save");
-	SaveButton.setBounds(5,50,50,30);
+	SaveButton.setBounds(5,65,50,30);
 
 	MinerSelector = new Choice();
 	MinerSelector.addItem("What Miner?");
 	MinerSelector.addItem("Claymore");
 	MinerSelector.addItem(" - ");
 	MinerSelector.addItem(" - ");
-	MinerSelector.setBounds(5,110,150,30);
+	MinerSelector.setBounds(5,125,150,30);
 
 	isDualMining = new Choice();
-	isDualMining.setBounds(5,140,100,30);
+	isDualMining.setBounds(5,155,100,30);
 	isDualMining.addItem("Dual Mine?");
 	isDualMining.addItem("Decred/Siacoin/Lbry/Pascal");
 //Decred/Siacoin/Lbry/Pascal
 
         Pool1 = new TextField("Pool",64);
-	Pool1.setBounds(55,20,100,30);
+	Pool1.setBounds(55,35,100,30);
 	Pool2 = new TextField("Dual Mine Pool",64);
-	Pool2.setBounds(5,170,100,30);
+	Pool2.setBounds(5,185,100,30);
         UserName = new TextField("UserName",64);
-	UserName.setBounds(55,50,100,30);
+	UserName.setBounds(55,65,100,30);
         PassWord = new TextField("PassWord",64);
-	PassWord.setBounds(55,80,100,30);
-        ConsoleOut.setBounds(160,20, 420,420);
+	PassWord.setBounds(55,95,100,30);
+        ConsoleOut.setBounds(160,35, 420,420);
         add(StartButton); 
         add(SaveButton); 
         add(MinerSelector); 
@@ -140,10 +141,65 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 	try {
 	saveBatFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
 	saveShFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
-	ConsoleOut.append("**SAVED as "+MinerSelector.getSelectedItem()+".bat(windows) & "+MinerSelector.getSelectedItem()+".sh(linux) :p**\n");
+	//ConsoleOut.append("**SAVED as "+MinerSelector.getSelectedItem()+".bat(windows) & "+MinerSelector.getSelectedItem()+".sh(linux) :p**\n");
 	} catch (Exception exc) {ConsoleOut.append("*NO PERMISSION TO SAVE FILES*"); System.out.println("error saving: "+exc);	}
 
 	}
+   }
+
+   public void saveBatFile(String fName, String pools, String uNames, String pWords) throws IOException {
+	File saveFile = new File(fName+".bat");
+		saveFile.createNewFile();
+		FileWriter writer = new FileWriter(saveFile);
+		writer.write("setx GPU_FORCE_64BIT_PTR 0\n"); 
+		writer.write("setx GPU_MAX_HEAP_SIZE 100\n"); 
+		writer.write("setx GPU_USE_SYNC_OBJECTS 1\n"); 
+		writer.write("setx GPU_MAX_ALLOC_PERCENT 100\n"); 
+		writer.write("setx GPU_SINGLE_ALLOC_PERCENT 100\n"); 
+		writer.write("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+      		writer.flush();
+      		writer.close();
+
+		ConsoleOut.append("	\n"); 
+		ConsoleOut.append("setx GPU_FORCE_64BIT_PTR 0\n"); 
+		ConsoleOut.append("setx GPU_MAX_HEAP_SIZE 100\n"); 
+		ConsoleOut.append("setx GPU_USE_SYNC_OBJECTS 1\n"); 
+		ConsoleOut.append("setx GPU_MAX_ALLOC_PERCENT 100\n"); 
+		ConsoleOut.append("setx GPU_SINGLE_ALLOC_PERCENT 100\n"); 
+		ConsoleOut.append("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+		ConsoleOut.append("File saved as: "+fName+".bat\n");
+   }
+
+   public void saveShFile(String fName, String pools, String uNames, String pWords) throws IOException {
+	File saveFile = new File(fName+".sh");
+		saveFile.createNewFile();
+		FileWriter writer = new FileWriter(saveFile);
+
+		writer.write("#!/bin/bash\n"); 
+		writer.write("export GPU_FORCE_64BIT_PTR 0\n"); 
+		writer.write("export GPU_MAX_HEAP_SIZE 100\n"); 
+		writer.write("export GPU_USE_SYNC_OBJECTS 1\n"); 
+		writer.write("export GPU_MAX_ALLOC_PERCENT 100\n"); 
+		writer.write("export GPU_SINGLE_ALLOC_PERCENT 100\n"); 
+		writer.write("./ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+      		writer.flush();
+      		writer.close();
+
+		ConsoleOut.append("	\n");
+		ConsoleOut.append("#!/bin/bash\n"); 
+		ConsoleOut.append("export GPU_FORCE_64BIT_PTR 0\n"); 
+		ConsoleOut.append("export GPU_MAX_HEAP_SIZE 100\n"); 
+		ConsoleOut.append("export GPU_USE_SYNC_OBJECTS 1\n"); 
+		ConsoleOut.append("export GPU_MAX_ALLOC_PERCENT 100\n"); 
+		ConsoleOut.append("export GPU_SINGLE_ALLOC_PERCENT 100\n"); 
+		ConsoleOut.append("./ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+		ConsoleOut.append("File saved as: "+fName+".sh\n");
+   }
+}
+
+
+
+
 //https://bitcointalk.org/index.php?topic=1433925.0
 //EthDcrMiner64.exe -epool eu1.ethermine.org:4444 -ewal <Your_Ethereum_Address>.<RigName> -epsw x
 /*-dpool    Decred/Siacoin/Lbry/Pascal pool address. Use "http://" prefix for HTTP pools, "stratum+tcp://" for Stratum pools. If prefix is missed, Stratum is assumed.
@@ -165,32 +221,3 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 -dcoin   select second coin to mine in dual mode. Possible options are "-dcoin dcr", "-dcoin sc", "-dcoin lbc", "-dcoin pasc", "-dcoin blake2s", "-dcoin keccak". Default value is "dcr".
 */
 
-
-
-   }
-
-   public static void saveBatFile(String fName, String pools, String uNames, String pWords) throws IOException {
-	File saveFile = new File(fName+".bat");
-		saveFile.createNewFile();
-		FileWriter writer = new FileWriter(saveFile); 
-		writer.write("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
-      		writer.flush();
-      		writer.close();
-   }
-
-   public static void saveShFile(String fName, String pools, String uNames, String pWords) throws IOException {
-	File saveFile = new File(fName+".sh");
-		saveFile.createNewFile();
-		FileWriter writer = new FileWriter(saveFile);
-
-		writer.write("#!/bin/bash\n"); 
-		writer.write("export GPU_FORCE_64BIT_PTR 0\n"); 
-		writer.write("export GPU_MAX_HEAP_SIZE 100\n"); 
-		writer.write("export GPU_USE_SYNC_OBJECTS 1\n"); 
-		writer.write("export GPU_MAX_ALLOC_PERCENT 100\n"); 
-		writer.write("export GPU_SINGLE_ALLOC_PERCENT 100\n"); 
-		writer.write("./ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
-      		writer.flush();
-      		writer.close();
-   }
-}
