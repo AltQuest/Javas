@@ -16,17 +16,14 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	
 	public static void main(String[] args) throws IOException, InterruptedException {}	
 	
-	Button StartButton,SaveButton;
-	TextField UserName,PassWord,Pool1,Pool2;
+	Button StopButton,StartButton,SaveButton;
+	TextField minerDirectory, UserName, UserName2, PassWord, PassWord2, Pool1, Pool2;
 	TextArea ConsoleOut = new TextArea(50, 10);
 	Choice MinerSelector, isDualMining = new Choice();
-	public boolean dualMining = false;
-	public String passPass;
-
-/*FileDialog dialog = new FileDialog(new Frame(), "Select Directory", FileDialog.LOAD);
-        dialog.show();
-        String directory = dialog.getDirectory(); 
-        System.out.println(directory);*/
+	public boolean dualMining = false, minerIsMining = false;
+	public String passPass,passPass2;
+	public String minerLocation;
+	public String batFileName,shFileName;
 
    public void init() {
 	this.setLayout(null);
@@ -37,41 +34,56 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
     	int appletWidth = appletSize.width;
 
         StartButton = new Button("Start");
-	StartButton.setBounds(5,35,50,30);
+	StartButton.setBounds(55,20,50,30);
 
         SaveButton = new Button("Save");
-	SaveButton.setBounds(5,65,50,30);
+	SaveButton.setBounds(105,20,50,30);
+
+        Pool1 = new TextField("Pool",64);
+	Pool1.setBounds(5,50,150,30);
+        UserName = new TextField("UserName",64);
+	UserName.setBounds(5,80,150,30);
+        PassWord = new TextField("PassWord",64);
+	PassWord.setBounds(5,110,150,30);
 
 	MinerSelector = new Choice();
 	MinerSelector.addItem("What Miner?");
 	MinerSelector.addItem("Claymore");
 	MinerSelector.addItem(" - ");
 	MinerSelector.addItem(" - ");
-	MinerSelector.setBounds(5,125,150,30);
+	MinerSelector.setBounds(5,140,150,30);
+
+
+        minerDirectory = new TextField("Directory of your miner",64);
+	minerDirectory.setBounds(5,170,150,30);
 
 	isDualMining = new Choice();
-	isDualMining.setBounds(5,155,100,30);
-	isDualMining.addItem("Dual Mine?");
+	isDualMining.setBounds(5,200,150,30);
+	isDualMining.addItem("Dual Mine OFF");
 	isDualMining.addItem("Decred/Siacoin/Lbry/Pascal");
-//Decred/Siacoin/Lbry/Pascal
+	//Decred/Siacoin/Lbry/Pascal
 
-        Pool1 = new TextField("Pool",64);
-	Pool1.setBounds(55,35,100,30);
 	Pool2 = new TextField("Dual Mine Pool",64);
-	Pool2.setBounds(5,185,100,30);
-        UserName = new TextField("UserName",64);
-	UserName.setBounds(55,65,100,30);
-        PassWord = new TextField("PassWord",64);
-	PassWord.setBounds(55,95,100,30);
-        ConsoleOut.setBounds(160,35, 420,420);
+	Pool2.setBounds(5,230,150,30);
+        UserName2 = new TextField("UserName2",64);
+	UserName2.setBounds(5,260,150,30);
+        PassWord2 = new TextField("PassWord2",64);
+	PassWord2.setBounds(5,290,150,30);
+
+        ConsoleOut.setBounds(160,50, 460,450);
+
+
         add(StartButton); 
         add(SaveButton); 
-        add(MinerSelector); 
-        add(isDualMining); 
         add(Pool1);
-        add(Pool2);
         add(UserName); 
         add(PassWord);
+        add(MinerSelector); 
+        add(minerDirectory); 
+        add(isDualMining); 
+        add(Pool2);
+        add(UserName2); 
+        add(PassWord2);
         add(ConsoleOut);
 
 
@@ -79,31 +91,46 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	SaveButton.addActionListener(this);
 	MinerSelector.addItemListener(this);
 	isDualMining.addItemListener(this); 
+
+	minerDirectory.setVisible(false);
 	isDualMining.setVisible(false);
 	Pool2.setVisible(false);
+	UserName2.setVisible(false);
+	PassWord2.setVisible(false);
 
-	ConsoleOut.setText("This is EasyMinerGUI created by @BitcoinJake09\n" + "input your pool, username, and password to get started :D\n" +"currently save will create a .bat and .sh file to also run instead ;)\n" +"ENJOY! STAY CRYPTIC!\n");
 
+	ConsoleOut.setText("This is EasyMinerGUI created by @BitcoinJake09\n" + "input your pool, username, and password to get started :D\n" +"currently save will create a .bat and .sh file to also run instead ;)\n" +"ENJOY! STAY CRYPTIC!\n"+"OS Detected: "+System.getProperty("os.name")+"\n");
+	//System.setOut();
    }
    public void itemStateChanged (ItemEvent e)
    {
 	if (e.getSource() == MinerSelector) {
 		System.out.println("MinerSelector Clicked");
 ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");	
-	if (MinerSelector.getSelectedItem().equals("Claymore")) {
+		if (MinerSelector.getSelectedItem().equals("Claymore")) {
 		isDualMining.setVisible(true);
-	}
+		minerDirectory.setVisible(true);
+		}
+		else {
+		isDualMining.setVisible(false);
+		minerDirectory.setVisible(false);
+		}
 	}//Decred/Siacoin/Lbry/Pascal
 	if (e.getSource() == isDualMining) {
 		System.out.println("isDualMining Clicked");	
 	if (isDualMining.getSelectedItem().equals("Decred/Siacoin/Lbry/Pascal")) {
 		ConsoleOut.append("Dual mine: " + isDualMining.getSelectedItem() + " Selected\n");
 		Pool2.setVisible(true);
+		UserName2.setVisible(true);
+		PassWord2.setVisible(true);
 		dualMining = true;
 	}
 	if (!isDualMining.getSelectedItem().equals("Decred/Siacoin/Lbry/Pascal")) {
 		ConsoleOut.append("Dual mine: OFF \n");
 		Pool2.setVisible(false);
+		UserName2.setVisible(false);
+		PassWord2.setVisible(false);
+		dualMining = false;
 	}
 	}
    }
@@ -119,15 +146,46 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
    public void actionPerformed(ActionEvent e){
 	if (e.getSource() == StartButton) {
 		System.out.println("StartButton Clicked");
+		if (minerIsMining==true) {
+				minerIsMining=false;
+		}
+		else if (minerIsMining==false) {
+				minerIsMining=true;
+		}
+		//try {
+       		//Process p =  Runtime.getRuntime().exec("cmd /c start \"batFileName"") ;           
+    		//} catch (IOException ex) {
+    		//}
+		if (System.getProperty("os.name").equals("Linux")) {
+			Thread runMiner = new Thread(new Runnable() {
+    public void run()
+    {
+         // code goes here.
+			try {
+			System.out.println("attempting to run...");
+			ProcessBuilder pb = new ProcessBuilder("./"+shFileName);
+ 			Process p = pb.start();
+ 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+ 			String line = null;			
+				while ((minerIsMining==true)&&(line = reader.readLine()) != null)
+ 				{
+    					System.out.println(line);
+ 				}
+			
+
+
+    			} catch (IOException ex) {
+				System.out.println("error running: "+ex);
+    			}
+    }});  
+    runMiner.start();
+		}
+
 	}
 	if (e.getSource() == SaveButton) {
 		System.out.println("SaveButton Clicked");
 		if (Pool1.getText().equals("Pool")) {
 			ConsoleOut.append("**need to set a Pool**\n");
-			return;
-		}
-		if ((Pool2.getText().equals("Dual Mine Pool"))&&(dualMining==true)) {
-			ConsoleOut.append("**need to set a Dual Mine Pool**\n");
 			return;
 		}
 		if (UserName.getText().equals("UserName")) {
@@ -138,16 +196,37 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 			ConsoleOut.append("**if no password set will default to: x **\n");
 			passPass="x";
 		}
+		if ((Pool2.getText().equals("Dual Mine Pool"))&&(dualMining==true)) {
+			ConsoleOut.append("**need to set a Dual Mine Pool**\n");
+			return;
+		}
+		if ((UserName2.getText().equals("UserName2"))&&(dualMining==true)) {
+			ConsoleOut.append("**need to set a dual mine UserName**\n");
+			return;
+		}
+		if ((PassWord2.getText().equals("PassWord2"))&&(dualMining==true)) {
+			ConsoleOut.append("**if no password set on dual mine it will default to: x **\n");
+			passPass2="x";
+		}
 	try {
-	saveBatFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
-	saveShFile(MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
+	if (System.getProperty("os.name").equals("Windows")) {
+		batFileName = saveBatFile(minerDirectory.getText(), MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
+		ConsoleOut.append("File saved as: "+batFileName);
+		ConsoleOut.append("	\n");
+	}
+	if (System.getProperty("os.name").equals("Linux")) {
+		shFileName = saveShFile(minerDirectory.getText(), MinerSelector.getSelectedItem(),Pool1.getText(), UserName.getText(), passPass);
+		ConsoleOut.append("File saved as: "+shFileName);
+		ConsoleOut.append("	\n");
+	}
+	
 	//ConsoleOut.append("**SAVED as "+MinerSelector.getSelectedItem()+".bat(windows) & "+MinerSelector.getSelectedItem()+".sh(linux) :p**\n");
 	} catch (Exception exc) {ConsoleOut.append("*NO PERMISSION TO SAVE FILES*"); System.out.println("error saving: "+exc);	}
 
 	}
    }
 
-   public void saveBatFile(String fName, String pools, String uNames, String pWords) throws IOException {
+   public String saveBatFile(String mDirectory, String fName, String pools, String uNames, String pWords) throws IOException {
 	File saveFile = new File(fName+".bat");
 		saveFile.createNewFile();
 		FileWriter writer = new FileWriter(saveFile);
@@ -156,47 +235,114 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 		writer.write("setx GPU_USE_SYNC_OBJECTS 1\n"); 
 		writer.write("setx GPU_MAX_ALLOC_PERCENT 100\n"); 
 		writer.write("setx GPU_SINGLE_ALLOC_PERCENT 100\n"); 
-		writer.write("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+		writer.write(mDirectory+"/"+"EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
       		writer.flush();
       		writer.close();
 
-		ConsoleOut.append("	\n"); 
+		ConsoleOut.append("	\n");
+		ConsoleOut.append("Creating a Windows .bat file:\n"); 
 		ConsoleOut.append("setx GPU_FORCE_64BIT_PTR 0\n"); 
 		ConsoleOut.append("setx GPU_MAX_HEAP_SIZE 100\n"); 
 		ConsoleOut.append("setx GPU_USE_SYNC_OBJECTS 1\n"); 
 		ConsoleOut.append("setx GPU_MAX_ALLOC_PERCENT 100\n"); 
 		ConsoleOut.append("setx GPU_SINGLE_ALLOC_PERCENT 100\n"); 
-		ConsoleOut.append("EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
-		ConsoleOut.append("File saved as: "+fName+".bat\n");
+		ConsoleOut.append(mDirectory+"/"+"EthDcrMiner64.exe -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+		return (fName+".bat");
    }
 
-   public void saveShFile(String fName, String pools, String uNames, String pWords) throws IOException {
+   public String saveShFile(String mDirectory, String fName, String pools, String uNames, String pWords) throws IOException {
 	File saveFile = new File(fName+".sh");
 		saveFile.createNewFile();
 		FileWriter writer = new FileWriter(saveFile);
 
 		writer.write("#!/bin/bash\n"); 
-		writer.write("export GPU_FORCE_64BIT_PTR 0\n"); 
-		writer.write("export GPU_MAX_HEAP_SIZE 100\n"); 
-		writer.write("export GPU_USE_SYNC_OBJECTS 1\n"); 
-		writer.write("export GPU_MAX_ALLOC_PERCENT 100\n"); 
-		writer.write("export GPU_SINGLE_ALLOC_PERCENT 100\n"); 
-		writer.write("./ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+ 		writer.write("cd\n");
+ 		writer.write("cd "+mDirectory+"\n");
+		writer.write("export GPU_MAX_HEAP_SIZE=100\n"); 
+		writer.write("export GPU_USE_SYNC_OBJECTS=1\n"); 
+		writer.write("export GPU_MAX_ALLOC_PERCENT=100\n"); 
+		writer.write("export GPU_SINGLE_ALLOC_PERCENT=100\n");
+		writer.write("./"+"ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
       		writer.flush();
       		writer.close();
 
 		ConsoleOut.append("	\n");
+		ConsoleOut.append("Creating a Linux .sh file:\n"); 
 		ConsoleOut.append("#!/bin/bash\n"); 
-		ConsoleOut.append("export GPU_FORCE_64BIT_PTR 0\n"); 
-		ConsoleOut.append("export GPU_MAX_HEAP_SIZE 100\n"); 
-		ConsoleOut.append("export GPU_USE_SYNC_OBJECTS 1\n"); 
-		ConsoleOut.append("export GPU_MAX_ALLOC_PERCENT 100\n"); 
-		ConsoleOut.append("export GPU_SINGLE_ALLOC_PERCENT 100\n"); 
-		ConsoleOut.append("./ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
-		ConsoleOut.append("File saved as: "+fName+".sh\n");
+ 		ConsoleOut.append("cd\n");
+ 		ConsoleOut.append("cd "+mDirectory+"\n");
+		ConsoleOut.append("export GPU_MAX_HEAP_SIZE=100\n"); 
+		ConsoleOut.append("export GPU_USE_SYNC_OBJECTS=1\n"); 
+		ConsoleOut.append("export GPU_MAX_ALLOC_PERCENT=100\n"); 
+		ConsoleOut.append("export GPU_SINGLE_ALLOC_PERCENT=100\n"); 
+		ConsoleOut.append("./"+"ethdcrminer64 -epool " + pools + " -ewal " + uNames +" -epsw "+pWords+"\n"); 
+		return (fName+".sh");
    }
+	
 }
 
+//make a class to structure the data better?
+
+class MinerData
+{
+	String MinerLocation;
+	String MinerPoolName;
+	String MinerPool2Name;
+	String MinerUsername;
+	String MinerUsername2;
+	String MinerPoolPassword;
+	String MinerPool2Password;
+	boolean DualMining;
+	
+	public String getMinerLocation() {
+		return MinerLocation;
+	}
+	public void setMinerLocation(String MinerLocation) {
+		this.MinerLocation = MinerLocation;
+	}
+
+	public String getMinerPoolName() {
+		return MinerPoolName;
+	}
+	public void setMinerPoolName(String MinerPoolName) {
+		this.MinerPoolName = MinerPoolName;
+	}
+
+	public String getMinerUsername() {
+		return MinerUsername;
+	}
+	public void setMinerUsername(String MinerUsername) {
+		this.MinerUsername = MinerUsername;
+	}
+
+	public String getMinerUsername2() {
+		return MinerUsername2;
+	}
+	public void setMinerUsername2(String MinerUsername2) {
+		this.MinerUsername2 = MinerUsername2;
+	}
+
+	public String getMinerPoolPassword() {
+		return MinerPoolPassword;
+	}
+	public void setMinerPoolPassword(String MinerPoolPassword) {
+		this.MinerPoolPassword = MinerPoolPassword;
+	}
+
+	public String getMinerPool2Password() {
+		return MinerPool2Password;
+	}
+	public void setMinerPool2Password(String MinerPool2Password) {
+		this.MinerPool2Password = MinerPool2Password;
+	}
+
+	public boolean getDualMining() {
+		return DualMining;
+	}
+	public void setDualMining(boolean DualMining) {
+		this.DualMining = DualMining;
+	}
+}
 
 
 
