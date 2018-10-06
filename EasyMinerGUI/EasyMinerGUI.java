@@ -24,6 +24,7 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	public String passPass,passPass2;
 	public String minerLocation;
 	public String batFileName,shFileName;
+	runMinerThread Miner = new runMinerThread();
 
    public void init() {
 	this.setLayout(null);
@@ -32,6 +33,9 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
     	Dimension appletSize = this.getSize();
     	int appletHeight = appletSize.height;
     	int appletWidth = appletSize.width;
+
+        StopButton = new Button("Stop");
+	StopButton.setBounds(5,20,50,30);
 
         StartButton = new Button("Start");
 	StartButton.setBounds(55,20,50,30);
@@ -72,7 +76,7 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 
         ConsoleOut.setBounds(160,50, 460,450);
 
-
+        add(StopButton); 
         add(StartButton); 
         add(SaveButton); 
         add(Pool1);
@@ -92,6 +96,7 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	MinerSelector.addItemListener(this);
 	isDualMining.addItemListener(this); 
 
+	StopButton.setVisible(false);
 	minerDirectory.setVisible(false);
 	isDualMining.setVisible(false);
 	Pool2.setVisible(false);
@@ -144,6 +149,10 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
    }
    
    public void actionPerformed(ActionEvent e){
+	if (e.getSource() == StopButton) {
+		Miner.stopMining();
+		StopButton.setVisible(false);
+	}
 	if (e.getSource() == StartButton) {
 		System.out.println("StartButton Clicked");
 		if (minerIsMining==true) {
@@ -157,28 +166,8 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
     		//} catch (IOException ex) {
     		//}
 		if (System.getProperty("os.name").equals("Linux")) {
-			Thread runMiner = new Thread(new Runnable() {
-    public void run()
-    {
-         // code goes here.
-			try {
-			System.out.println("attempting to run...");
-			ProcessBuilder pb = new ProcessBuilder("./"+shFileName);
- 			Process p = pb.start();
- 			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
- 			String line = null;			
-				while ((minerIsMining==true)&&(line = reader.readLine()) != null)
- 				{
-    					System.out.println(line);
- 				}
-			
-
-
-    			} catch (IOException ex) {
-				System.out.println("error running: "+ex);
-    			}
-    }});  
-    runMiner.start();
+			Miner.startMiner(shFileName);
+    			StopButton.setVisible(true);
 		}
 
 	}
@@ -281,68 +270,14 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 	
 }
 
+
+
+
+
+
 //make a class to structure the data better?
 
-class MinerData
-{
-	String MinerLocation;
-	String MinerPoolName;
-	String MinerPool2Name;
-	String MinerUsername;
-	String MinerUsername2;
-	String MinerPoolPassword;
-	String MinerPool2Password;
-	boolean DualMining;
-	
-	public String getMinerLocation() {
-		return MinerLocation;
-	}
-	public void setMinerLocation(String MinerLocation) {
-		this.MinerLocation = MinerLocation;
-	}
 
-	public String getMinerPoolName() {
-		return MinerPoolName;
-	}
-	public void setMinerPoolName(String MinerPoolName) {
-		this.MinerPoolName = MinerPoolName;
-	}
-
-	public String getMinerUsername() {
-		return MinerUsername;
-	}
-	public void setMinerUsername(String MinerUsername) {
-		this.MinerUsername = MinerUsername;
-	}
-
-	public String getMinerUsername2() {
-		return MinerUsername2;
-	}
-	public void setMinerUsername2(String MinerUsername2) {
-		this.MinerUsername2 = MinerUsername2;
-	}
-
-	public String getMinerPoolPassword() {
-		return MinerPoolPassword;
-	}
-	public void setMinerPoolPassword(String MinerPoolPassword) {
-		this.MinerPoolPassword = MinerPoolPassword;
-	}
-
-	public String getMinerPool2Password() {
-		return MinerPool2Password;
-	}
-	public void setMinerPool2Password(String MinerPool2Password) {
-		this.MinerPool2Password = MinerPool2Password;
-	}
-
-	public boolean getDualMining() {
-		return DualMining;
-	}
-	public void setDualMining(boolean DualMining) {
-		this.DualMining = DualMining;
-	}
-}
 
 
 
