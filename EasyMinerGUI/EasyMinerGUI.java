@@ -30,7 +30,8 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	public String passPass,passPass2;
 	public String minerLocation;
 	public String batFileName,shFileName;
-
+	runMinerThread Minerthread = new runMinerThread();
+	Thread minerThread = new Thread(Minerthread);
 
    public void init() {
 	this.setLayout(null);
@@ -134,6 +135,9 @@ public class EasyMinerGUI extends Applet implements ItemListener, ActionListener
 	if (e.getSource() == SavedStartupFiles) {
 		System.out.println("SavedStartupFiles Clicked");
 //ConsoleOut.append(SavedStartupFiles.getSelectedItem() + " Selected\n");	
+	if (Minerthread.setItemToRun(SavedStartupFiles.getSelectedItem())) {
+		System.out.println(SavedStartupFiles.getSelectedItem()+ " selected to run...");
+	}
 		if (SavedStartupFiles.getSelectedItem().equals("Open Script: closed")) {
 		ConsoleOut.append("Closed Script... \n");
 		}
@@ -218,11 +222,8 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
    }
 
    public void actionPerformed(ActionEvent e){
-	runMinerThread Miner = new runMinerThread();
-	if (Miner.setItemToRun(SavedStartupFiles.getSelectedItem())) {
-		System.out.println(SavedStartupFiles.getSelectedItem()+ " selected to run...");
-	}
-	Thread minerThread = new Thread(Miner);			
+	minerThread = new Thread(Minerthread);
+				
 	if (e.getSource() == StopButton) {
 		minerThread.interrupt();
 		StopButton.setVisible(false);
@@ -230,6 +231,10 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
 	if (e.getSource() == StartButton) {
 		System.out.println("StartButton Clicked");
 		if (!SavedStartupFiles.getSelectedItem().equals("Open Script: closed")) {
+			if (Minerthread.setItemToRun(SavedStartupFiles.getSelectedItem())) {
+				shFileName=SavedStartupFiles.getSelectedItem();
+				System.out.println(shFileName + " selected to run...");
+			}
 			ConsoleOut.append("Attempting to run "+SavedStartupFiles.getSelectedItem()+" \n");
 			minerThread.start();
     			StopButton.setVisible(true);
@@ -248,10 +253,11 @@ ConsoleOut.append(MinerSelector.getSelectedItem() + " Selected\n");
        		//Process p =  Runtime.getRuntime().exec("cmd /c start \"batFileName"") ;           
     		//} catch (IOException ex) {
     		//}
-		if (Miner.setItemToRun(shFileName)) {
+		if (Minerthread.setItemToRun(shFileName)) {
 			System.out.println(shFileName + " selected to run...");
 		}
-			minerThread = new Thread(Miner);	
+		
+			minerThread = new Thread(Minerthread);	
 
 		if (System.getProperty("os.name").equals("Linux")) {
 			ConsoleOut.append("Attempting to run "+shFileName+" \n");

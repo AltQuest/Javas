@@ -9,8 +9,11 @@ public class runMinerThread extends Thread {
 	//@Override
 	public void run () {
 		//startMiner(shFileName);
+            while (!Thread.currentThread().isInterrupted()) {
+		main();
+	    }
 	}
-	public void main(String args[]) {
+	public void main() {
 	   try {
 		System.out.println("attempting to run...");
 		ProcessBuilder pb = new ProcessBuilder("./MinerScripts/"+fileName);
